@@ -8,10 +8,174 @@
 
 import UIKit
 
+
+// Definition for singly-linked list.
+public class ListNode {
+    public var val: Int
+    public var next: ListNode?
+    public init(_ val: Int) {
+        self.val = val
+        self.next = nil
+    }
+}
+
+// Definition for a binary tree node.
+public class TreeNode {
+    public var val: Int
+    public var left: TreeNode?
+    public var right: TreeNode?
+    public init(_ val: Int) {
+        self.val = val
+        self.left = nil
+        self.right = nil
+    }
+}
+
+
 class LeedCode: NSObject {
+    
+    //MARK:重建二叉树，新手来说比较复杂
+    /*
+     输入某二叉树的前序遍历和中序遍历的结果，请重建该二叉树。
+     假设输入的前序遍历和中序遍历的结果中都不含重复的数字。
+
+     例如，给出
+     前序遍历 preorder = [3,9,20,15,7]
+     中序遍历 inorder = [9,3,15,20,7]
+     返回如下的二叉树：
+
+         3
+        / \
+       9  20
+         /  \
+        15   7
+      
+     限制：
+     0 <= 节点个数 <= 5000
+
+     */
+    
+    //二叉树的遍历，前序遍历
+    func traverseLead(_ treeNode:TreeNode?) -> Void {
+        
+        guard treeNode != nil else {
+            return
+        }
+        
+        print("\(treeNode?.val),")
+        self.traverseLead(treeNode?.left)
+        self.traverseLead(treeNode?.right)
+    }
+    
+    //中序遍历
+    func traverseMiddle(_ treeNode:TreeNode?) ->  Void{
+        guard treeNode != nil else {
+            return
+        }
+        
+        self.traverseMiddle(treeNode?.left)
+        print("\(treeNode?.val)")
+        self.traverseMiddle(treeNode?.right)
+        
+    }
+    
+    func traverseEnd(_ treeNode:TreeNode?) -> Void {
+        guard treeNode != nil else {
+            return
+        }
+        
+        self.traverseEnd(treeNode?.left)
+        self.traverseEnd(treeNode?.right)
+        print("\(treeNode?.val), ")
+        
+    }
+    
+    func creatTree() -> TreeNode? {
+        //创建二叉树
+        let rootNode = TreeNode.init(3)
+        let leftOneRoot = TreeNode.init(9)
+        let rightOneRoot = TreeNode.init(20)
+        let rightOneLeftNode = TreeNode.init(15)
+        let rightOneRightNode = TreeNode.init(7)
+        
+        rootNode.left = leftOneRoot
+        rootNode.right = rightOneRoot
+        rightOneRoot.left = rightOneLeftNode
+        rightOneRoot.right = rightOneRightNode
+        
+        return rootNode
+    }
+    
+//    func buildTree(_ preorder: [Int], _ inorder: [Int]) -> TreeNode? {
+//
+//    }
+    
+    func buildChildTree(_ preorder: [Int], _ startIndex:Int, _ endIndex:Int, _ inorder: [Int], _ mapIndexValue: [Int:Int]) -> TreeNode? {
+        
+        if startIndex > endIndex {
+            return nil
+        }
+        
+        let rootNode = TreeNode.init(preorder[startIndex])
+        if startIndex == endIndex {
+            return rootNode
+        }else{
+            let inorderNodeIndex = inorder.firstIndex(of: preorder[startIndex])
+            
+        }
+        
+        return rootNode;
+    }
+    
+    //MARK:从尾到头打印链表
+    /*
+     输入一个链表的头节点，从尾到头反过来返回每个节点的值（用数组返回）。
+     
+     示例 1：
+     输入：head = [1,3,2]
+     输出：[2,3,1]
+      
+     限制：
+     0 <= 链表长度 <= 10000
+     
+     */
+    func reversePrint(_ head: ListNode?) -> [Int] {
+        
+        var currentNode = head
+        var nextNode = currentNode?.next
+        var reversedArr:[Int] = []
+        while currentNode != nil {
+            if let value = currentNode?.val {
+                reversedArr.append(value)
+            }
+            currentNode = nextNode
+            nextNode = currentNode?.next
+        }
+       return reversedArr.reversed()
+    }
+    
+    func reversePrintRecursion(_ head: ListNode?) -> [Int] {
+        
+        if head?.next != nil {
+            
+            var returnArrar = self.reversePrint(head?.next)
+            if let curValue = head?.val {
+                returnArrar.append(curValue)
+            }
+             return returnArrar
+        }else{
+            var listArr:[Int] = []
+            if let curValue = head?.val {
+                listArr.append(curValue)
+            }
+            
+            return listArr
+        }
+       
+    }
 
 
-    //MARK:题目一：找出数组中重复的数字
+    //MARK:找出数组中重复的数字
     /*
      在一个长度为n的数组nums里的所有数字都在0～n-1的范围内。
      数组中某些数字是重复的，但不知道有几个数字重复了，也不知道每个数字重复了几次。
@@ -93,9 +257,16 @@ class LeedCode: NSObject {
      限制：
      0 <= n <= 1000
      0 <= m <= 1000
+     
+     时间复杂度：
+     控件复杂度:
      */
     
     func findNumberIn2DArray(_ matrix: [[Int]], _ target: Int) -> Bool {
+        
+        guard matrix.count != 0 && matrix[0].count != 0 else {
+            return false
+        }
 
         var cloumCount = matrix[0].count
         
@@ -111,5 +282,45 @@ class LeedCode: NSObject {
         
         return false
     }
+    
+    //MARK:替换空格
+    /*
+     请实现一个函数，把字符串 s 中的每个空格替换成"%20"。
+     
+     示例 1：
+     输入：s = "We are happy."
+     输出："We%20are%20happy."
+     
+     限制：
+     0 <= s 的长度 <= 10000
+     
+     注意如果输入的是两个空格的时候会有异常情况
+     */
+    func replaceSpace(_ s: String) -> String {
+        guard s.count >= 0 && s.count <= 10000 else {
+            return ""
+        }
+        var resultStr = ""
+        for index in 0..<s.count {
+            let indexRange = s.index(s.startIndex, offsetBy: index)
+            let word = s[indexRange]
+            if word == " " {
+                resultStr.append("%20")
+            }else{
+                resultStr.append(word)
+            }
+        }
+        
+        return resultStr
+    }
+    
+    //系统有指定的方法
+    func replaceSpaceSystemMethod(_ s: String) -> String {
+        guard s.count >= 0 && s.count <= 10000 else {
+            return ""
+        }
+        return s.replacingOccurrences(of: " ", with: "%20")
+    }
+    
     
 }

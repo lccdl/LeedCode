@@ -55,6 +55,121 @@ class LeedCode: NSObject {
 
      */
     
+    func testBuildTree() {
+        
+        let treeNode = self.buildTree([1,2,3], [3,2,1])
+        print("前序遍历")
+        self.traverseLead(treeNode)
+        
+        print("中序遍历")
+        self.traverseMiddle(treeNode)
+        
+        print("后序遍历")
+        self.traverseEnd(treeNode)
+    }
+    
+    func creatTree() -> TreeNode? {
+        //创建二叉树
+        let rootNode = TreeNode.init(3)
+        let leftOneRoot = TreeNode.init(9)
+        let rightOneRoot = TreeNode.init(20)
+        let rightOneLeftNode = TreeNode.init(15)
+        let rightOneRightNode = TreeNode.init(7)
+        
+        rootNode.left = leftOneRoot
+        rootNode.right = rightOneRoot
+        rightOneRoot.left = rightOneLeftNode
+        rightOneRoot.right = rightOneRightNode
+        
+        return rootNode
+    }
+    
+    func buildTree(_ preorder: [Int], _ inorder: [Int]) -> TreeNode? {
+        if preorder.count > 5000 || preorder.count < 0{return nil}
+        
+        var preorderIndexMap = [Int:Int]()
+        for index in 0..<preorder.count {
+            preorderIndexMap[index] = preorder[index]
+        }
+
+        return self.buildChildTree(preorder, 0, preorder.count - 1, inorder, preorderIndexMap)
+    }
+    
+    /*
+     思路：
+     解题之前需要了解一下前序遍历、中序遍历的特点
+     前序遍历的特点是优先遍历节点，再去遍历节点下面的叶子节点（叶子节点也含有子节点的话，循环遍历）
+     中序遍历的特点是先遍历节点的左边叶子节点，再遍历节点，最后遍历右节点
+     
+     注意：
+     前序遍历遍历完当前节点之后，先遍历左子树的所有节点之后才会去遍历右子树的节点，这个特点很重要
+     通过中序遍历找到当前的节点在中序遍历的位置，那么中序遍历下标左边的所有节点数目就是当前节点的左子树数量总和
+     同理，右边节点数目也能确定
+     
+     前序遍历与中序遍历公共的特点就是优先遍历左子树的所有节点之后，最后才去遍历右子树的内容（重要）
+     
+     依据以上两个特点，还原二叉树，可以按照以下的思路进行：
+     1.前序遍历的数组的下标进行数据编号
+     2.遍历前序遍历的元素，遍历过程中，查找元素在中序遍历中的位置来确定当前元素所在节点左子树节点以及右子数节点
+       如果
+     
+     */
+    
+    func buildChildTree(_ preorder: [Int], _ startIndex:Int, _ endIndex:Int, _ inorder: [Int], _ mapIndexValue: [Int:Int]) -> TreeNode? {
+        
+        if startIndex > endIndex{
+            return nil
+        }
+        
+        let rootNode = TreeNode.init(preorder[startIndex])
+        
+        //找到节点所在的下标
+        if let leftTreeEndIndex = inorder.firstIndex(of: preorder[startIndex]){
+            
+            print("--------endIndex:\(endIndex) startInd:\(startIndex)")
+            //判断右子树节点个数与左子树节点个数，确定是否含有左子树或者是右子树
+            //已经遍历过的节点数目
+            let leftTreeNode = self.buildChildTree(preorder, startIndex + 1, leftTreeEndIndex, inorder, mapIndexValue)
+            rootNode.left = leftTreeNode
+            
+            //                if endIndex - leftTreeEndIndex > 0 {
+            //                    let rightTreeNode = self.buildChildTree(preorder, leftTreeEndIndex + 1, endIndex, inorder, mapIndexValue)
+            //                    rootNode.right = rightTreeNode
+            //                }
+            
+            return rootNode
+        }
+        
+        
+        
+//
+//        if startIndex == endIndex {
+//            return rootNode
+//        }else{
+//
+//            //找到节点所在的下标
+//            if let leftTreeEndIndex = inorder.firstIndex(of: preorder[startIndex]){
+//
+//                print("--------endIndex:\(endIndex) startInd:\(startIndex)")
+//                //判断右子树节点个数与左子树节点个数，确定是否含有左子树或者是右子树
+//                //已经遍历过的节点数目
+//                let leftTreeNode = self.buildChildTree(preorder, startIndex + 1, leftTreeEndIndex, inorder, mapIndexValue)
+//                rootNode.left = leftTreeNode
+//
+////                if endIndex - leftTreeEndIndex > 0 {
+////                    let rightTreeNode = self.buildChildTree(preorder, leftTreeEndIndex + 1, endIndex, inorder, mapIndexValue)
+////                    rootNode.right = rightTreeNode
+////                }
+//
+//                return rootNode
+//            }
+//
+//
+//        }
+        
+        return rootNode;
+    }
+    
     //二叉树的遍历，前序遍历
     func traverseLead(_ treeNode:TreeNode?) -> Void {
         
@@ -79,6 +194,7 @@ class LeedCode: NSObject {
         
     }
     
+    //后序遍历
     func traverseEnd(_ treeNode:TreeNode?) -> Void {
         guard treeNode != nil else {
             return
@@ -88,43 +204,6 @@ class LeedCode: NSObject {
         self.traverseEnd(treeNode?.right)
         print("\(treeNode?.val), ")
         
-    }
-    
-    func creatTree() -> TreeNode? {
-        //创建二叉树
-        let rootNode = TreeNode.init(3)
-        let leftOneRoot = TreeNode.init(9)
-        let rightOneRoot = TreeNode.init(20)
-        let rightOneLeftNode = TreeNode.init(15)
-        let rightOneRightNode = TreeNode.init(7)
-        
-        rootNode.left = leftOneRoot
-        rootNode.right = rightOneRoot
-        rightOneRoot.left = rightOneLeftNode
-        rightOneRoot.right = rightOneRightNode
-        
-        return rootNode
-    }
-    
-//    func buildTree(_ preorder: [Int], _ inorder: [Int]) -> TreeNode? {
-//
-//    }
-    
-    func buildChildTree(_ preorder: [Int], _ startIndex:Int, _ endIndex:Int, _ inorder: [Int], _ mapIndexValue: [Int:Int]) -> TreeNode? {
-        
-        if startIndex > endIndex {
-            return nil
-        }
-        
-        let rootNode = TreeNode.init(preorder[startIndex])
-        if startIndex == endIndex {
-            return rootNode
-        }else{
-            let inorderNodeIndex = inorder.firstIndex(of: preorder[startIndex])
-            
-        }
-        
-        return rootNode;
     }
     
     //MARK:从尾到头打印链表

@@ -13,10 +13,9 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         let leedCode = LeedCode()
+        leedCode.testBuildTree()
 //        var mutableArrar = [2, 3, 1, 0, 2, 5, 3]
         
-        leedCode.traverseEnd(leedCode.creatTree())
-//        print("重复的内容：\(leedCode.replaceSpace("   "))")
     }
 
 

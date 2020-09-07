@@ -57,7 +57,7 @@ class LeedCode: NSObject {
     
     func testBuildTree() {
         
-        let treeNode = self.buildTree([1,2,3], [3,2,1])
+        let treeNode = self.buildTree([3,2,1], [1,2,3])
         print("前序遍历")
         self.traverseLead(treeNode)
         
@@ -102,70 +102,46 @@ class LeedCode: NSObject {
      中序遍历的特点是先遍历节点的左边叶子节点，再遍历节点，最后遍历右节点
      
      注意：
-     前序遍历遍历完当前节点之后，先遍历左子树的所有节点之后才会去遍历右子树的节点，这个特点很重要
-     通过中序遍历找到当前的节点在中序遍历的位置，那么中序遍历下标左边的所有节点数目就是当前节点的左子树数量总和
-     同理，右边节点数目也能确定
+     前序遍历遍历完当前节点之后，先遍历左子树的所有节点之后才会去遍历右子树的节点，假设当前遍历先序数组
+     的下标为preOrderIndex,通过中序遍历找到当前的节点在中序遍历的位置，此时当前节点所在的树的节点数就
+     是左子树的节点数（等于此时的节点下标值inorderRootIndex），所以能推出当前左子树在前序遍历的边界下标
+     （preOrderIndex + inorderRootIndex）,右子树的边界值为当前子树的截止下标 inorderRootIndex
+     加上右子树节点数量（end - (preOrderIndex + inorderRootIndex)）
      
      前序遍历与中序遍历公共的特点就是优先遍历左子树的所有节点之后，最后才去遍历右子树的内容（重要）
      
      依据以上两个特点，还原二叉树，可以按照以下的思路进行：
      1.前序遍历的数组的下标进行数据编号
-     2.遍历前序遍历的元素，遍历过程中，查找元素在中序遍历中的位置来确定当前元素所在节点左子树节点以及右子数节点
-       如果
+     2.遍历前序遍历的元素，遍历过程中，查找元素在中序遍历中的位置来确定当前元素所在节点左子树节点以及右子数节点数目，
+       依据前序遍历数组，再结合左子树的节点数目，确定左子树在前序遍历的边界内容。同理依据
      
      */
     
     func buildChildTree(_ preorder: [Int], _ startIndex:Int, _ endIndex:Int, _ inorder: [Int], _ mapIndexValue: [Int:Int]) -> TreeNode? {
         
         if startIndex > endIndex{
+            print("遍历结束")
             return nil
         }
         
         let rootNode = TreeNode.init(preorder[startIndex])
         
-        //找到节点所在的下标
-        if let leftTreeEndIndex = inorder.firstIndex(of: preorder[startIndex]){
-            
-            print("--------endIndex:\(endIndex) startInd:\(startIndex)")
-            //判断右子树节点个数与左子树节点个数，确定是否含有左子树或者是右子树
-            //已经遍历过的节点数目
-            let leftTreeNode = self.buildChildTree(preorder, startIndex + 1, leftTreeEndIndex, inorder, mapIndexValue)
-            rootNode.left = leftTreeNode
-            
-            //                if endIndex - leftTreeEndIndex > 0 {
-            //                    let rightTreeNode = self.buildChildTree(preorder, leftTreeEndIndex + 1, endIndex, inorder, mapIndexValue)
-            //                    rootNode.right = rightTreeNode
-            //                }
-            
+        if startIndex == endIndex {
+            print("子节点:\(preorder[startIndex])")
             return rootNode
         }
         
-        
-        
-//
-//        if startIndex == endIndex {
-//            return rootNode
-//        }else{
-//
-//            //找到节点所在的下标
-//            if let leftTreeEndIndex = inorder.firstIndex(of: preorder[startIndex]){
-//
-//                print("--------endIndex:\(endIndex) startInd:\(startIndex)")
-//                //判断右子树节点个数与左子树节点个数，确定是否含有左子树或者是右子树
-//                //已经遍历过的节点数目
-//                let leftTreeNode = self.buildChildTree(preorder, startIndex + 1, leftTreeEndIndex, inorder, mapIndexValue)
-//                rootNode.left = leftTreeNode
-//
-////                if endIndex - leftTreeEndIndex > 0 {
-////                    let rightTreeNode = self.buildChildTree(preorder, leftTreeEndIndex + 1, endIndex, inorder, mapIndexValue)
-////                    rootNode.right = rightTreeNode
-////                }
-//
-//                return rootNode
-//            }
-//
-//
-//        }
+        if let rootNodeIndex = inorder.firstIndex(of: preorder[startIndex]){
+                        
+            print("起始位置:\(startIndex + 1), 终止位置：\(rootNodeIndex)")
+            
+            //保证所有节点都能遍历到（包括根节点）
+            rootNode.left = self.buildChildTree(preorder, startIndex + 1, rootNodeIndex + 1, inorder, mapIndexValue)
+            
+            rootNode.right = self.buildChildTree(preorder, rootNodeIndex + 1, endIndex, inorder, mapIndexValue)
+                        
+            return rootNode
+        }
         
         return rootNode;
     }

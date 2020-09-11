@@ -21,18 +21,173 @@ public class ListNode {
 
 // Definition for a binary tree node.
 public class TreeNode {
-    public var val: Int
+    public var val: Any
     public var left: TreeNode?
     public var right: TreeNode?
-    public init(_ val: Int) {
+    public init(_ val: Any) {
         self.val = val
         self.left = nil
         self.right = nil
     }
 }
 
+public class StackNode {
+    
+    public var value:Int?
+    public var next:StackNode?
+    
+    init(_ value:Int?) {
+        self.value = value
+        self.next = nil
+    }
+    
+}
+
+public class Stack {
+    
+    var headeNode:StackNode?
+    
+    func addObj(value:Int?) {
+        let allocNode = StackNode(value)
+        allocNode.next = self.headeNode
+        self.headeNode = allocNode
+    }
+    
+    func displayStack() {
+        var curNode = self.headeNode
+        while curNode != nil {
+            print("\(curNode?.value)")
+            curNode = curNode?.next
+        }
+    }
+    
+    func deleteObj(value:Int) {
+        
+        var curNode = self.headeNode
+        var perNode = self.headeNode
+        while curNode != nil{
+            
+            if value == curNode?.value {
+                perNode?.next = curNode?.next
+                break;
+            }
+            perNode = curNode
+            curNode = nil
+            curNode = curNode?.next
+            
+        }
+        self.displayStack()
+    }
+    
+    func addStackNode(_ stackNode:StackNode) {
+        stackNode.next = self.headeNode
+        self.headeNode = stackNode
+    }
+    
+    func deleteStackNode(_ stackNode:StackNode) {
+        
+        var curNode = self.headeNode
+        var preNode = self.headeNode
+        while curNode != nil, curNode?.value != stackNode.value {
+            curNode = curNode?.next
+            preNode = curNode
+        }
+        
+        //相等的情况下，删除节点
+        preNode?.next = curNode?.next
+        curNode = nil
+    }
+        
+
+}
+
+class CQueue {
+    
+    var queueStack: Stack? //展示
+    var tmpOrderStack: Stack? //用于队列头部添加node
+
+    init() {
+        self.queueStack = Stack()
+        self.tmpOrderStack = Stack()
+    }
+    
+    //使用
+    func appendTail(_ value: Int) {
+        guard value >= 1 && value <= 10000 else {
+            return
+        }
+        
+        //取出队列栈中所有的元素到另一个栈，
+        var curNode = self.queueStack?.headeNode
+        self.tmpOrderStack?.headeNode = nil;
+        while curNode != nil {
+            self.tmpOrderStack?.addObj(value: curNode?.value)
+            curNode = curNode?.next
+        }
+        self.queueStack?.headeNode = nil
+        self.queueStack?.addObj(value: value)
+
+        //临时的栈存储的元素还原
+        var curTmpNode = self.tmpOrderStack?.headeNode
+        while curTmpNode != nil {
+            self.queueStack?.addObj(value: curTmpNode?.value)
+            curTmpNode = curTmpNode?.next
+        }
+        self.tmpOrderStack?.headeNode = nil;
+    }
+    
+    
+    func deleteHead() -> Int {
+        
+        if let curNode = self.queueStack?.headeNode{
+            self.queueStack?.headeNode = curNode.next
+            return curNode.value!
+        }
+
+        return -1
+    }
+    
+}
 
 class LeedCode: NSObject {
+    
+    //MARK：创建栈数据结构
+    func creatStack() {
+        
+        let stack = Stack()
+        stack.addStackNode(StackNode(5))
+        stack.addStackNode(StackNode(4))
+        stack.addStackNode(StackNode(3))
+        stack.addStackNode(StackNode(2))
+        stack.addStackNode(StackNode(1))
+        stack.displayStack()
+        print("删除之后的操作")
+        stack.deleteObj(value: 2)
+    }
+    
+    //MARK:用两个栈实现一个队列
+    /*
+     用两个栈实现一个队列。队列的声明如下，请实现它的两个函数 appendTail 和 deleteHead
+     ，分别完成在队列尾部插入整数和在队列头部删除整数的功能。(若队列中没有元素，deleteHead
+     操作返回 -1 )
+     
+     示例 1：
+     输入：
+     ["CQueue","appendTail","deleteHead","deleteHead"]
+     [[],[3],[],[]]
+     输出：[null,null,3,-1]
+     
+     
+     示例 2：
+     输入：
+     ["CQueue","deleteHead","appendTail","appendTail","deleteHead","deleteHead"]
+     [[],[],[5],[2],[],[]]
+     输出：[null,-1,null,null,5,2]
+     提示：
+     1 <= values <= 10000
+     最多会对 appendTail、deleteHead 进行 10000 次调用
+     */
+    
     
     //MARK:重建二叉树，新手来说比较复杂
     /*
@@ -54,6 +209,7 @@ class LeedCode: NSObject {
      0 <= 节点个数 <= 5000
 
      */
+    
     
     func testBuildTree() {
         

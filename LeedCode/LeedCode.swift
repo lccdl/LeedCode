@@ -42,112 +42,89 @@ public class StackNode {
     }
     
 }
-
-public class Stack {
-    
-    var headeNode:StackNode?
-    
-    func addObj(value:Int?) {
-        let allocNode = StackNode(value)
-        allocNode.next = self.headeNode
-        self.headeNode = allocNode
+/*
+ 栈遵循 LIFO
+ 队列遵循 FIFO
+ 通常固定操作是：
+ 1.Push 入栈
+ 2.Pop 出栈
+ */
+class Stack: NSObject {
+    var stack:[Int] = []
+    func push(_ element:Int) {
+        self.stack.append(element)
     }
     
-    func displayStack() {
-        var curNode = self.headeNode
-        while curNode != nil {
-            print("\(curNode?.value)")
-            curNode = curNode?.next
+    func pop() -> Int{
+        return self.stack.popLast() ?? -1
+    }
+    
+    func displayElement() {
+        var index = self.stack.count - 1
+        while index > 0 {
+            let indexValue = self.stack.firstIndex(of: index)
+            print("\(String(describing: indexValue))")
+            index = index - 1
         }
     }
-    
-    func deleteObj(value:Int) {
-        
-        var curNode = self.headeNode
-        var perNode = self.headeNode
-        while curNode != nil{
-            
-            if value == curNode?.value {
-                perNode?.next = curNode?.next
-                break;
-            }
-            perNode = curNode
-            curNode = nil
-            curNode = curNode?.next
-            
-        }
-        self.displayStack()
-    }
-    
-    func addStackNode(_ stackNode:StackNode) {
-        stackNode.next = self.headeNode
-        self.headeNode = stackNode
-    }
-    
-    func deleteStackNode(_ stackNode:StackNode) {
-        
-        var curNode = self.headeNode
-        var preNode = self.headeNode
-        while curNode != nil, curNode?.value != stackNode.value {
-            curNode = curNode?.next
-            preNode = curNode
-        }
-        
-        //相等的情况下，删除节点
-        preNode?.next = curNode?.next
-        curNode = nil
-    }
-        
-
 }
+
+//MARK:用两个栈实现一个队列
+/*
+ 用两个栈实现一个队列。队列的声明如下，请实现它的两个函数 appendTail 和 deleteHead
+ ，分别完成在队列尾部插入整数和在队列头部删除整数的功能。(若队列中没有元素，deleteHead
+ 操作返回 -1 )
+ 
+ 示例 1：
+ 输入：
+ ["CQueue","appendTail","deleteHead","deleteHead"]
+ [[],[3],[],[]]
+ 输出：[null,null,3,-1]
+ 
+ 
+ 示例 2：
+ 输入：
+ ["CQueue","deleteHead","appendTail","appendTail","deleteHead","deleteHead"]
+ [[],[],[5],[2],[],[]]
+ 输出：[null,-1,null,null,5,2]
+ 提示：
+ 1 <= values <= 10000
+ 最多会对 appendTail、deleteHead 进行 10000 次调用
+ */
 
 class CQueue {
     
-    var queueStack: Stack? //展示
-    var tmpOrderStack: Stack? //用于队列头部添加node
+    var storeStack:[Int] = []
+    var tmpStoreStack:[Int] = []
 
     init() {
-        self.queueStack = Stack()
-        self.tmpOrderStack = Stack()
-    }
-    
-    //使用
-    func appendTail(_ value: Int) {
-        guard value >= 1 && value <= 10000 else {
-            return
-        }
         
-        //取出队列栈中所有的元素到另一个栈，
-        var curNode = self.queueStack?.headeNode
-        self.tmpOrderStack?.headeNode = nil;
-        while curNode != nil {
-            self.tmpOrderStack?.addObj(value: curNode?.value)
-            curNode = curNode?.next
-        }
-        self.queueStack?.headeNode = nil
-        self.queueStack?.addObj(value: value)
-
-        //临时的栈存储的元素还原
-        var curTmpNode = self.tmpOrderStack?.headeNode
-        while curTmpNode != nil {
-            self.queueStack?.addObj(value: curTmpNode?.value)
-            curTmpNode = curTmpNode?.next
-        }
-        self.tmpOrderStack?.headeNode = nil;
     }
     
+    func appendTail(_ value: Int) {
+        self.storeStack.append(value)
+    }
     
     func deleteHead() -> Int {
         
-        if let curNode = self.queueStack?.headeNode{
-            self.queueStack?.headeNode = curNode.next
-            return curNode.value!
+        if self.tmpStoreStack.isEmpty {
+            while !self.storeStack.isEmpty {
+                self.tmpStoreStack.append(self.storeStack.removeLast())
+            }
         }
-
-        return -1
+        
+        return self.tmpStoreStack.isEmpty ? -1 : self.tmpStoreStack.removeLast()
     }
     
+    func displayElement() {
+        var index = 0
+        while index < self.storeStack.count {
+            print("\(self.storeStack[index])")
+            index = index + 1
+        }
+    }
 }
+
 
 class LeedCode: NSObject {
     
@@ -155,39 +132,73 @@ class LeedCode: NSObject {
     func creatStack() {
         
         let stack = Stack()
-        stack.addStackNode(StackNode(5))
-        stack.addStackNode(StackNode(4))
-        stack.addStackNode(StackNode(3))
-        stack.addStackNode(StackNode(2))
-        stack.addStackNode(StackNode(1))
-        stack.displayStack()
-        print("删除之后的操作")
-        stack.deleteObj(value: 2)
+        stack.push(1)
+        stack.push(2)
+        stack.push(3)
+        stack.push(4)
+        stack.push(5)
+        print("入栈之后的内容")
+        stack.displayElement()
+        stack.pop()
+        print("出栈之后的内容")
+        stack.displayElement()
+        
     }
     
-    //MARK:用两个栈实现一个队列
-    /*
-     用两个栈实现一个队列。队列的声明如下，请实现它的两个函数 appendTail 和 deleteHead
-     ，分别完成在队列尾部插入整数和在队列头部删除整数的功能。(若队列中没有元素，deleteHead
-     操作返回 -1 )
-     
-     示例 1：
-     输入：
-     ["CQueue","appendTail","deleteHead","deleteHead"]
-     [[],[3],[],[]]
-     输出：[null,null,3,-1]
-     
-     
-     示例 2：
-     输入：
-     ["CQueue","deleteHead","appendTail","appendTail","deleteHead","deleteHead"]
-     [[],[],[5],[2],[],[]]
-     输出：[null,-1,null,null,5,2]
-     提示：
-     1 <= values <= 10000
-     最多会对 appendTail、deleteHead 进行 10000 次调用
-     */
+    func testUse() {
+        print("最终结果是\(self.fib(41))")
+    }
     
+    //MARK:斐波那契数列
+    /*
+    写一个函数，输入 n ，求斐波那契（Fibonacci）数列的第 n 项。斐波那契数列的定义如下：
+    
+    F(0) = 0,   F(1) = 1
+    F(N) = F(N - 1) + F(N - 2), 其中 N > 1.
+    斐波那契数列由 0 和 1 开始，之后的斐波那契数就是由之前的两数相加而得出。
+    答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。
+
+    示例 1：
+    输入：n = 2
+    输出：1
+    
+    示例 2：
+    输入：n = 5
+    输出：5
+    
+    提示：
+    0 <= n <= 100
+    */
+    //方案一：最low的方法，普通程序员首选，如果有人这么写，也就大学水平，如果按算法来定义的话，pass掉
+    func fib(_ n: Int) -> Int {
+        
+        guard n >= 0 && n <= 100 else {
+            return -1
+        }
+
+        if n == 0{
+            return 0
+        }
+        
+        if n == 1 {
+            return 1
+        }
+        
+        return (self.fib(n - 1) + self.fib(n - 2))%1000000007
+    }
+    
+    //方案二：利用最后两项的想加结果中间数量替换
+    func fibTwo(_ n: Int) -> Int {
+        var a = 0, b = 1, sum = 0
+        for _ in 0..<n {
+            sum = (a + b) % 1000000007
+            a = b
+            b = sum
+        }
+        
+        return a
+    }
+
     
     //MARK:重建二叉树，新手来说比较复杂
     /*
@@ -204,7 +215,6 @@ class LeedCode: NSObject {
        9  20
          /  \
         15   7
-      
      限制：
      0 <= 节点个数 <= 5000
 

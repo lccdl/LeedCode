@@ -304,7 +304,15 @@ class LeedCode: NSObject {
     
     func powByByte(_ x: Int, _ n: Int) -> Int {
         
-        var localN = (n & 1 == 0) ? n : (n-1)
+        if x == 0 {
+            return 0
+        }
+        
+        if x == 1 {
+            return x
+        }
+        
+        var localN = n
         var localX = x
         var result = 1
         
@@ -314,11 +322,11 @@ class LeedCode: NSObject {
                 result  = localX * result
             }
             //移位之前要按位加权
-            localX = (localX * x)
+            localX = (localX * localX)
             localN = localN>>1
         }
         
-        return (x & 1 == 0) ? result : (result * x)
+        return result
     }
     
     /*
@@ -458,38 +466,19 @@ class LeedCode: NSObject {
      升幂运算，依据矩阵推倒公式，相关的算法例如求解x的n次幂:x^n
      */
     func powMartrix(_ x: [[Int]], _ n: Int) -> [[Int]] {
-        var result = x
+        //先变成单位矩阵
+        var result = [[1,0],[0,1]]
         var localN = n
-        var localLogValue = x
-        //偶数
-        if localN & 1 == 0 {
-            while localN != 0 {
-                if localN & 1 != 0{
-                    result = self.MartrixMutiply(localLogValue,result)
-                }
-                //升位
-                localLogValue = self.MartrixMutiply(localLogValue,x)
-                localN = localN >> 1
+        var localX = x
+        while localN != 0 {
+            if localN & 1 != 0{
+                result = self.MartrixMutiply(localX, result)
             }
-            return result
+            localX = self.MartrixMutiply(localX, localX)
+            localN = localN >> 1
         }
         
-        //奇数
-        else {
-        
-            localN = localN - 1
-            while localN != 0 {
-                if localN & 1 != 0{
-                    result = self.MartrixMutiply(localLogValue,result)
-                }
-                //升位
-                localLogValue = self.MartrixMutiply(localLogValue,x)
-                localN = localN >> 1
-            }
-            
-            return self.MartrixMutiply(x,result)
-        }
-        
+        return result
     }
     
     /*

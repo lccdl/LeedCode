@@ -125,8 +125,239 @@ class CQueue {
     }
 }
 
-
 class LeedCode: NSObject {
+    
+    //
+    /*使用二分法查找*/
+    func minArray(_ numbers: [Int]) -> Int {
+        
+        var i = 0
+        var j = numbers.count - 1
+        
+        while i < j {
+            
+            let m = (i + j)/2
+            if numbers[m] > numbers[j] {
+                i = m + 1
+            }
+            
+            if numbers[m] < numbers[j] {
+                j = m
+            }
+            
+            if numbers[m] == numbers[j] {
+                j = j - 1
+            }
+            
+        }
+        
+        return numbers[i]
+    }
+    
+    //MARK:青蛙跳台阶问题
+    /*
+     一只青蛙一次可以跳上1级台阶，也可以跳上2级台阶。求该青蛙跳上一个 n 级的台阶总共有多少种跳法。
+
+     答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。
+
+     示例 1：
+
+     输入：n = 2
+     输出：2
+     示例 2：
+
+     输入：n = 7
+     输出：21
+     示例 3：
+
+     输入：n = 0
+     输出：1
+     提示：
+
+     0 <= n <= 100
+
+     */
+    
+    //基本解法：使用递归操作，其中使用中间值保存已存在的变量来避免数据的重复运算问题
+    //时间复杂度O(2^n)
+    func numWays(_ n: Int) -> Int {
+
+        var tmpValue = [Int:Int]()
+        if n == 0 || n == 1 {
+            return 1
+        }
+        
+        else if n == 2 {
+            return 2
+        }
+        
+        else{
+            var jumpOneStep = 0
+            var jumpTwoStep = 0
+            
+            if let jumpOneTmpStep = tmpValue[n - 1] {
+                jumpOneStep = jumpOneTmpStep
+            }else{
+                jumpOneStep = self.numWays(n - 1)
+                tmpValue[n - 1] = jumpOneStep
+            }
+            
+            if let jumpTwoTmpStep = tmpValue[n - 2] {
+                jumpTwoStep = jumpTwoTmpStep
+            }else{
+                jumpTwoStep = self.numWays(n - 2)
+                tmpValue[n - 2] = jumpTwoStep
+            }
+            
+            return jumpOneStep + jumpTwoStep
+        }
+        
+    }
+    
+    //使用数组遍历，时间复杂度为O(n)
+    func numWaysTwo(_ n: Int) -> Int {
+        
+        guard n <= 100 && n >= 0 else {
+            return -1
+        }
+        
+        if n == 0 || n == 1 {
+            return 1
+        }
+        
+        if n == 2 {
+            return 2
+        }
+        
+        var preWays = 1
+        var curWays = 2
+        var sumWays = 0
+        
+        for _ in 3...n {
+            sumWays = (preWays + curWays)%1000000007
+            preWays = curWays
+            curWays = sumWays
+        }
+        
+        return sumWays
+
+    }
+    
+    //最优方法是采用矩阵方法，此方法是斐波拉契的时间最优解，时间复杂度为O(logn)的
+    
+    /*
+     使用拆分法，又叫分治归并算法
+     时间复杂度O(n)
+     */
+    func powSplit(_ x: Int, _ n: Int) -> Int {
+        if n == 0 {
+            return 1
+        }
+        
+        if n == 1 {
+            return x
+        }
+        
+        //偶数
+        if n & 1 == 0 {
+            return self.powSplit(x, n/2) * self.powSplit(x, n/2)
+        }
+        
+        //奇数
+        return self.powSplit(x, (n-1)/2) * self.powSplit(x, (n-1)/2) * x
+    }
+    
+    //MARK:求解x的n次方的结果
+    /*
+     分治思想:
+     将整个集合划分为不可分割的子集（判定返回的条件）
+     然后算出子集的结果，最终返回结果
+     可以采用递归，同样也可采取循环迭代的思想
+     */
+    func pow(_ x: inout Int, _ n: inout Int) -> Int {
+        
+        if n < 0 {
+            x = 1/x
+            n = -n
+        }
+        
+        if n == 0 {
+            return 1
+        }
+        if n == 1 {
+            return x
+        }
+        
+        //拷贝一份新的可变数值
+        var localX = x
+        var localN = n/2
+        
+        let tmpValue = self.pow(&localX, &localN) * self.pow(&localX, &localN)
+        //偶数
+        if n % 2 == 0 {
+            return tmpValue
+        }else{
+            return tmpValue * x
+        }
+    
+    }
+    
+    func powByByte(_ x: Int, _ n: Int) -> Int {
+        
+        var localN = (n & 1 == 0) ? n : (n-1)
+        var localX = x
+        var result = 1
+        
+        while localN != 0 {
+            //当前位有效，乘以权值
+            if localN & 1 != 0 {
+                result  = localX * result
+            }
+            //移位之前要按位加权
+            localX = (localX * x)
+            localN = localN>>1
+        }
+        
+        return (x & 1 == 0) ? result : (result * x)
+    }
+    
+    /*
+    
+     按位计算:
+     
+   
+    */
+    func pow_byte(_ x: Int, _ n: Int) -> Int {
+        
+        var localX = x
+        var localN = n
+        if localN < 0 {
+            localX = 1/localX
+            localN = -localN
+        }
+        
+        if localN == 0 {
+            return 1
+        }
+        
+        if localN == 1 {
+            return x
+        }
+        
+        var pow = 1
+        while localN != 0 {
+            if localN & 1 == 1 {
+                pow *= localX
+            }
+            //按权位升级幂底数
+            localX = localX * localX
+            //向右移位1
+            localN = localN >> 1
+        }
+        
+        return pow
+    }
+    
     
     //MARK：创建栈数据结构
     func creatStack() {
@@ -197,6 +428,102 @@ class LeedCode: NSObject {
         }
         
         return a
+    }
+    
+    /*
+     测试求值
+     */
+    func fibTestDemo(_ n: Int) -> Int {
+        let res = self.fibMatrix(n)
+        return res[0][1]
+    }
+    
+    /*
+     使用矩阵乘法升维计算
+     */
+    func fibMatrix(_ n: Int) -> [[Int]] {
+        let MartrixUnit = [[1,1],[1,0]]
+        if n == 0 {
+            return [[0,0],[0,0]]
+        }
+        if n == 1{
+            return MartrixUnit
+        }
+        print("矩阵结果:\(self.powMartrix(MartrixUnit, n))")
+        return self.powMartrix(MartrixUnit, n)
+        
+    }
+    
+    /*
+     升幂运算，依据矩阵推倒公式，相关的算法例如求解x的n次幂:x^n
+     */
+    func powMartrix(_ x: [[Int]], _ n: Int) -> [[Int]] {
+        var result = x
+        var localN = n
+        var localLogValue = x
+        //偶数
+        if localN & 1 == 0 {
+            while localN != 0 {
+                if localN & 1 != 0{
+                    result = self.MartrixMutiply(localLogValue,result)
+                }
+                //升位
+                localLogValue = self.MartrixMutiply(localLogValue,x)
+                localN = localN >> 1
+            }
+            return result
+        }
+        
+        //奇数
+        else {
+        
+            localN = localN - 1
+            while localN != 0 {
+                if localN & 1 != 0{
+                    result = self.MartrixMutiply(localLogValue,result)
+                }
+                //升位
+                localLogValue = self.MartrixMutiply(localLogValue,x)
+                localN = localN >> 1
+            }
+            
+            return self.MartrixMutiply(x,result)
+        }
+        
+    }
+    
+    /*
+     矩阵乘法算法
+     */
+    func MartrixMutiply(_ leftMartrix: [[Int]], _ rightMartrix: [[Int]]) -> [[Int]] {
+        var resMartrix = [[Int]]()
+        var rowArr = [Int]()
+        for row in 0..<leftMartrix.count{
+            for col in 0..<rightMartrix[0].count{
+                rowArr.append(self.countElementIndex(leftMartrix, row, rightMartrix, col))
+            }
+            resMartrix.append(rowArr)
+            rowArr.removeAll()
+        }
+        return resMartrix
+    }
+    
+    /*
+     计算某行元素与某一列元素的乘积和
+     */
+    func countElementIndex(_ leftArray: [[Int]], _ rowIndex: Int, _ rightArray: [[Int]], _ colIndex: Int ) -> Int {
+        
+        //要符合两个矩阵相乘的前提
+        guard leftArray.count == rightArray[0].count else {
+            return -1
+        }
+        
+        var result = 0
+        for index in 0..<leftArray.count {
+            result = result + leftArray[rowIndex][index] * rightArray[index][colIndex]
+        }
+        
+        return result
     }
 
     
@@ -329,6 +656,7 @@ class LeedCode: NSObject {
         guard treeNode != nil else {
             return
         }
+        
         
         self.traverseMiddle(treeNode?.left)
         print("\(treeNode?.val)")
